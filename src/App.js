@@ -1,23 +1,34 @@
-import logo from './logo.svg';
+//import logo from './logo.svg';
 import './App.css';
+import Todo from './components/Todo';
+import {List} from '@mui/material';
 
-function App() {
+const items = [
+    {
+        id: 1,
+        title: '점심메뉴 고르기',
+        done: true
+    },
+    {
+        id: 2,
+        title: '책 읽기',
+        done: false
+    },
+    {
+        id: 3,
+        title: '동영상 강의 보기',
+        done: false
+    }
+];
+
+const todoItems = items.map(item => <Todo key={item.id} item={item} />);
+
+const App = () => {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+        <List>
+            {todoItems}
+        </List>
     </div>
   );
 }
