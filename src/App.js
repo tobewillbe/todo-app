@@ -2,6 +2,7 @@
 import './App.css';
 import Todo from './components/Todo';
 import {List} from '@mui/material';
+import AddTodo from "./components/AddTodo";
 
 const items = [
     {
@@ -26,6 +27,7 @@ const todoItems = items.map(item => <Todo key={item.id} item={item} />);
 const App = () => {
   return (
     <div className="App">
+        <AddTodo />
         <List>
             {todoItems}
         </List>
