@@ -1,6 +1,6 @@
 //import logo from './logo.svg';
 import React, {useState} from 'react';
-import './App.css';
+import './css/main.css';
 import Todo from './components/Todo';
 import {List} from '@mui/material';
 import AddTodo from "./components/AddTodo";
@@ -8,23 +8,23 @@ import AddTodo from "./components/AddTodo";
 
 const App = () => {
 
-    const items = [
-        {
-            id: 1,
-            title: '점심메뉴 고르기',
-            done: true
-        },
-        {
-            id: 2,
-            title: '책 읽기',
-            done: false
-        },
-        {
-            id: 3,
-            title: '동영상 강의 보기',
-            done: false
-        }
-    ];
+    const [itemList,setItemList] = useState ([
+        // {
+        //     id: 1,
+        //     title: '점심메뉴 고르기',
+        //     done: true
+        // },
+        // {
+        //     id: 2,
+        //     title: '책 읽기',
+        //     done: false
+        // },
+        // {
+        //     id: 3,
+        //     title: '동영상 강의 보기',
+        //     done: false
+        // }
+   ]);
 
     //AddTodo에게 전달할 함수
     //할일 추가처리
@@ -38,12 +38,24 @@ const App = () => {
         console.log(itemList);
     };
 
-    const [itemList, setItemList] =useState(items);
+    const remove = (target) => {
+        console.log(target);
 
-    const todoItems = itemList.map(item => <Todo key={item.id} item={item} />);
+        const filteredItemList = itemList.filter(item => {
+            return target.id !== item.id;
+        });
+        setItemList(filteredItemList);
+    };
+
+    const todoItems = itemList.map(item => <Todo key={item.id} item={item} remove={remove} />);
+
+    useEffect(
+
+    )
+
 
     return (
-    <div className="App">
+    <div className="wrapper">
         <AddTodo add={add}/>
         <List>
             {todoItems}
