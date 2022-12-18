@@ -4,10 +4,21 @@ import Todo from './components/Todo';
 import { List, Paper, Container } from '@mui/material';
 import AddTodo from './components/AddTodo';
 
-export const BASE_URL = 'http://localhost:8080/api/todos';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Spinner } from 'reactstrap';
+
+import { API_BASE_URL } from './config/host-config';
+
+export const BASE_URL = API_BASE_URL + '/api/todos';
+
 
 const App = () => {
 
+    // 토큰 가져오기
+    const ACCESS_TOKEN = localStorage.getItem('ACCESS_TOKEN');
+
+
+    const [loading, setLoading] = useState(true);
     const [itemList, setItemList] = useState([
         // {
         //     id: 1,
@@ -34,7 +45,10 @@ const App = () => {
 
         fetch(BASE_URL, {
             method: 'POST',
-            headers: { 'Content-type': 'application/json' },
+            headers: {
+                'Content-type': 'application/json',
+                'Authorization': 'Bearer ' + ACCESS_TOKEN
+            },
             body: JSON.stringify(item)
         })
             .then(res => res.json())
@@ -50,7 +64,10 @@ const App = () => {
         // console.log(target);
 
         fetch(BASE_URL + `/${target.id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                'Authorization': 'Bearer ' + ACCESS_TOKEN
+            },
         })
             .then(res => res.json())
             .then(json => {
@@ -60,10 +77,13 @@ const App = () => {
 
     // 서버에 수정요청하는 함수
     const update = (item) => {
-        console.log('2:',item);
+        // console.log('2:',item);
         fetch(BASE_URL, {
             method: 'PUT',
-            headers: { 'Content-type': 'application/json' },
+            headers: {
+                'Content-type': 'application/json',
+                'Authorization': 'Bearer ' + ACCESS_TOKEN
+            },
             body: JSON.stringify(item)
         })
         ;
@@ -74,25 +94,61 @@ const App = () => {
 
     useEffect(() => {
 
-        fetch(BASE_URL)
-            .then(res => res.json())
+        // 할일 목록 불러오기
+        fetch(BASE_URL, {
+            method: 'GET',
+            headers: {
+                'Authorization': 'Bearer ' + ACCESS_TOKEN
+            }
+        })
+            .then(res => {
+                if (res.status === 403) {
+                        setTimeout(()=> {
+                            alert('로그인이 필요한 서비스입니다.');
+                            window.location.href = '/login';
+                            return;
+                        }, 1000 )}
+                else {
+                    return res.json();
+                }
+            })
             .then(json => {
                 // console.log(json.todos);
                 setItemList(json.todos);
+                // 로딩 끝
+                setLoading(false);
             });
 
-    }, []);
+    }, [ACCESS_TOKEN]);
+
+    // 로딩 중일 때 보여줄 화면
+    const loadingPage = (
+        <div style={{
+            width: 'fit-content',
+            margin: '0 auto'
+        }}>
+            <Spinner color="secondary">
+                Loading...
+            </Spinner>
+        </div>
+    );
+    // 로딩이 끝났을 때 보여줄 화면
+    const viewPage = (
+        <>
+            <AddTodo add={add} />
+            <Paper style={{margin: 16}}>
+                <List>
+                    {todoItems}
+                </List>
+            </Paper>
+        </>
+    );
 
 
     return (
-        <div className="wrapper">
-            <Container maxWidth="md">
-                <AddTodo add={add} />
-                <Paper style={{margin: 16}}>
-                    <List>
-                        {todoItems}
-                    </List>
-                </Paper>
+        <div className="wrapper" >
+            <Container maxWidth="md" style={{marginTop: 100}}>
+                {loading ? loadingPage : viewPage}
             </Container>
         </div>
     );

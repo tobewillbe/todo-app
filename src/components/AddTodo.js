@@ -17,7 +17,7 @@ function AddTodo({add}) {
     const addClickHandler = e =>{
         // console.log('버튼클릭');
         add(item);
-        setItem({title: ' ' });
+        setItem({title: '' });
     };
 
     //엔터 이벤트

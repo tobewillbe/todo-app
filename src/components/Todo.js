@@ -51,7 +51,6 @@ const Todo = ({item , remove, update}) => {
             </ListItemSecondaryAction>
         </ListItem>
     );
-
 }
 
 export default Todo;
