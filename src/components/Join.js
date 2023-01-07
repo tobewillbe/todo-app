@@ -1,8 +1,14 @@
-import React, {useState} from "react";
+import React, {useState, useRef} from "react";
 import {Button, Container, Grid, TextField, Typography, Link} from "@mui/material";
 
 import {API_BASE_URL} from "../config/host-config";
 const Join = () => {
+
+    // 파일 인풋 DOM객체 useRef로 관리하기
+    const $fileInput = useRef();
+
+    // 이미지 파일 정보상태관리
+    const [imgFile,setImgFile] = useState(null);
 
     // 입력 정보 상태관리
     const [user, setUser] = useState({
@@ -77,8 +83,8 @@ const Join = () => {
                 if(flag){
                     message = '중복된 이메일 입니다.';
                     setValidate({...validate, email: false});
-                }else {
-                    message = '사용가능한 이메일 입니다.';
+                } else {
+                    message = '사용가능한 이메일입니다.';
                     setValidate({...validate, email: true});
                 }
                 setMsg({...msg, email: message});
@@ -113,13 +119,26 @@ const Join = () => {
     const joinHandler = e => {
         // 회원입력정보를 모두 읽어서 서버에 요청
 
-        if(isValid()) {
-            fetch(API_BASE_URL + '/auth/signup', {
+        e.preventDefault();
+
+
+
+        if(isValid()) { // validate값이 모두 true일 경우
+
+            // 회원 텍스트 정보 (JSON) + 프로필 사진 (이미지)
+            // 서버에 여러가지 정보를 보내할 때 multipart/form-data
+
+            const userFormData = new FormData();
+            const userBlob = new Blob([JSON.stringify(user)], {type:"application/json"})
+
+            // 유저정보 JSON
+            userFormData.append('userInfo', userBlob);
+            userFormData.append('profileImg', $fileInput.current.files[0]);
+
+            fetch(API_BASE_URL+'/auth/signup', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(user)
-            })
-            .then(res=>{
+                body: userFormData
+            }).then(res=>{
                 if (res.status === 200) {
                     alert('회원가입을 축하합니다.');
                     window.location.href='/login';
@@ -132,6 +151,27 @@ const Join = () => {
         }
     };
 
+    const fileClickHandler = e =>{
+        // const $fileInput = document.getElementById('profileImg');
+        $fileInput.current.click();
+    }
+
+    const showImageHandler = e =>{
+        //첨부파일의 데이터를 읽어온다
+        const fileData = $fileInput.current.files[0];
+        // 첨부파일의 바이트데이터를 읽기 위한 객체
+        const reader = new FileReader();
+        // 파일 바이트데이터를 img src나 a의 href에 넣기위한
+        // 모양으로 바꿔서 로딩해줌
+        reader.readAsDataURL(fileData);
+
+        // 첨부파일이 등록되는 순간에 이미지 셋팅
+        reader.onloadend = e => {
+            // 이미지 src 등록
+            setImgFile(reader.result);
+        };
+
+    }
     return(
         <Container component="main" maxWidth="xs" style={{ marginTop: "8%" }}>
             <form noValidate onSubmit={joinHandler}>
@@ -140,6 +180,23 @@ const Join = () => {
                         <Typography component="h1" variant="h5">
                             계정 생성
                         </Typography>
+                    </Grid>
+                    <Grid item xs={12}>
+                        <div className="thumbnail-box" onClick={fileClickHandler}>
+                            <img
+                                src={imgFile ? imgFile : require("../assets/img/image-add.png")}
+                                alt="프로필 썸네일"
+                            />
+                        </div>
+                        <label className="signup-img-label" htmlFor="profileImg"> 프로필 이미지 추가 </label>
+                        <input
+                            id="profileImg"
+                            type="file"
+                            accept="image/*"
+                            style={{ display: 'none' }}
+                            onChange={showImageHandler}
+                            ref={$fileInput}
+                        />
                     </Grid>
                     <Grid item xs={12}>
                         <TextField
