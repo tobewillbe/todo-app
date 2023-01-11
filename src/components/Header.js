@@ -40,7 +40,7 @@ const Header = () => {
             setProfile(imgUrl);
         })
 
-    }, [profile]);
+    }, []);
 
     return (
         <AppBar position="fixed">

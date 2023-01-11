@@ -119,7 +119,7 @@ const App = () => {
                 setLoading(false);
             });
 
-    }, [ACCESS_TOKEN]);
+     }, []);
 
     // 로딩 중일 때 보여줄 화면
     const loadingPage = (
